@@ -1,5 +1,5 @@
-simulator: main.o commands.o fat32.c 
-	tar -xvf fat32.tar.gz && gcc -g -o simulator main.o commands.o fat32.o -lm
+simulator: main.o commands.o fat32.o
+	tar -xvf fat32.img.tar.gz && gcc -g -o simulator main.o commands.o fat32.o -lm
 
 main.o: main.c
 	gcc -c -g main.c -lm
