@@ -75,10 +75,78 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
   usrInput[strlen(usrInput)-1] = '\0';
 	seperateBySpace(usrInput, &numOfToks, tokens);
 
-	int i;
-	for(i = 0; i < numOfToks; i++)
+	// int i;
+	// for(i = 0; i < numOfToks; i++)
+	// {
+	// 	printf("%s\n", tokens[i]);
+	// }
+
+	// Check what our command is and run
+	if(strcmp(tokens[0], "exit") == 0)
 	{
-		printf("%s\n", tokens[i]);
+		printf("You want to run the 'exit' command with %d arguments\n", numOfToks-1);
+    //free the image allocation
+    exit(0);
+	}
+	else if(strcmp(tokens[0], "info") == 0)
+	{
+		printf("You want to run the 'info' command with %d arguments\n", numOfToks-1);
+	}
+	else if(strcmp(tokens[0], "size") == 0)
+	{
+		printf("You want to run the 'size' command with %d arguments\n", numOfToks-1);
+	}
+	else if(strcmp(tokens[0], "ls") == 0)
+	{
+		printf("You want to run the 'ls' command with %d arguments\n", numOfToks-1);
+	}
+	else if(strcmp(tokens[0], "cd") == 0)
+	{
+		printf("You want to run the 'cd' command with %d arguments\n", numOfToks-1);
+	}
+	else if(strcmp(tokens[0], "creat") == 0)
+	{
+		printf("You want to run the 'creat' command with %d arguments\n", numOfToks-1);
+	}
+	else if(strcmp(tokens[0], "mkdir") == 0)
+	{
+		printf("You want to run the 'mkdir' command with %d arguments\n", numOfToks-1);
+	}
+	else if(strcmp(tokens[0], "mv") == 0)
+	{
+		printf("You want to run the 'mv' command with %d arguments\n", numOfToks-1);
+	}
+	else if(strcmp(tokens[0], "open") == 0)
+	{
+		printf("You want to run the 'open' command with %d arguments\n", numOfToks-1);
+	}
+	else if(strcmp(tokens[0], "close") == 0)
+	{
+		printf("You want to run the 'close' command with %d arguments\n", numOfToks-1);
+	}
+	else if(strcmp(tokens[0], "read") == 0)
+	{
+		printf("You want to run the 'read' command with %d arguments\n", numOfToks-1);
+	}
+	else if(strcmp(tokens[0], "write") == 0)
+	{
+		printf("You want to run the 'write' command with %d arguments\n", numOfToks-1);
+	}
+	else if(strcmp(tokens[0], "rm") == 0)
+	{
+		printf("You want to run the 'rm' command with %d arguments\n", numOfToks-1);
+	}
+	else if(strcmp(tokens[0], "cp") == 0)
+	{
+		printf("You want to run the 'cp' command with %d arguments\n", numOfToks-1);
+	}
+	else if(strcmp(tokens[0], "rmdir") == 0)
+	{
+		printf("You want to run the 'rmdir' command with %d arguments\n", numOfToks-1);
+	}
+	else
+	{
+		printf("Command entered (%s) is not supported\n", tokens[0]);
 	}
 }
 
