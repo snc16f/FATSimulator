@@ -66,15 +66,15 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 {
 	char tokens[100][100];
 	int numOfToks;
-    usrInput[strlen(usrInput)-1] = '\0';
+   usrInput[strlen(usrInput)-1] = '\0';
 	seperateBySpace(usrInput, &numOfToks, tokens);
 
 	// Check what our command is and run
 	if(strcmp(tokens[0], "exit") == 0)
 	{
 		printf("You want to run the 'exit' command with %d arguments\n", numOfToks-1);
-    	free(image);	//free image file
-    	exit(0);
+   	free(image);	//free image file
+   	exit(0);
 	}
 	else if(strcmp(tokens[0], "info") == 0)  //get BPB information from image file and prints it in decimal value
 	{
@@ -84,6 +84,19 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 	else if(strcmp(tokens[0], "size") == 0)
 	{
 		printf("You want to run the 'size' command with %d arguments\n", numOfToks-1);
+		if(numOfToks == 2)
+		{
+			show_size(image, tokens);
+		}
+		//check for valid tokened FILENAME (aka contains no spaces)
+		// else if(strchr(' ',tokens[1]) != NULL)
+		// {
+		// 	printf("Invalid filename (CANNOT CONATIN SPACES).\n");
+		// }
+		else
+		{
+			printf("Invalid command entry. Too many/little arguments provided.\nUsage: size [FILENAME]\n");
+		}
 	}
 	else if(strcmp(tokens[0], "ls") == 0)
 	{

@@ -118,3 +118,99 @@ int RSRVD_Size(const TheImage * image)  //obtain the size of the Reserved Region
 
 	return RSRVDsize;
 }
+
+
+void read_Entries_from_Dir(const TheImage * image, DirectoryEntry dirEntries[], int clusterNum, int *entryCount)
+{
+   if(clusterNum < 2)
+      clusterNum = 2;
+
+   if(clusterNum > (Num_Clusters(image)+2))
+      clusterNum = (Num_Clusters(image)+2);
+
+   int ass_clusters[200]; // [ass]ociated [clusters]
+   find_Clusters_Associated(image, clusterNum, ass_clusters);
+   *entryCount = 0;
+   int i = 0;
+   while(ass_clusters[i] != -1) // go til we hit the endpoint we set in findClustersAssociated()
+   {
+      unsigned char tempcluster[Cluster_Size(image)];
+      find_Cluster(image, ass_clusters[i], tempcluster);
+      int j = 1;
+      while(j <= 8)
+      {
+         DirectoryEntry temp = read_Entry(tempcluster, j);
+         if(temp.attributes[0] != 0x00) // dir is empty
+         {
+            dirEntries[(*entryCount)++] = temp;
+         }
+         j++;
+      }
+      i++;
+   }
+}
+
+void find_Clusters_Associated(const TheImage * image, int strtCluster, int * ass_clusters)
+{
+   if(strtCluster < 2)
+      strtCluster = 2;
+   if(strtCluster > (Num_Clusters(image)+2))
+      strtCluster = (Num_Clusters(image)+2);
+
+   int region[Num_Clusters(image)];
+   int i = 0;
+   Read_FATRegion(image, region);
+   while(region[strtCluster] != 0 && region[strtCluster] < 0x0FFFF8)
+   {
+      ass_clusters[i++] = strtCluster;
+      strtCluster = region[strtCluster];
+   }
+   ass_clusters[i++] = strtCluster;
+   ass_clusters[i] = -1; // had to add this line because there needs to be an endpoint set
+}
+
+void find_Cluster(const TheImage * image, int currClusterNum, unsigned char * theCluster)
+{
+   if(currClusterNum < 2)
+      currClusterNum = 2;
+   if(currClusterNum > ((Num_Clusters(image))+2))
+      currClusterNum = ((Num_Clusters(image))+2);
+   int index = DATA_Index(image) + (currClusterNum - 2) * Cluster_Size(image);
+   int i;
+   for(i = 0; i < Cluster_Size(image); i++)
+   {
+      theCluster[i] = image->buffer[index+i];
+   }
+}
+
+DirectoryEntry read_Entry(const unsigned char * theCluster, int entryNum)
+{
+   DirectoryEntry entry;
+   entryNum--;
+   int index = 32 + (64 * (entryNum));
+   memcpy(entry.dirName, theCluster + index, 11);
+   index = index + 11;
+   memcpy(entry.attributes, theCluster + index, 1);
+   index = index + 1;
+   memcpy(entry.ntres, theCluster + index, 1);
+   index = index + 1;
+   memcpy(entry.tenthSecCreated, theCluster + index, 1);
+   index = index + 1;
+   memcpy(entry.timeCreated, theCluster + index, 2);
+   index = index + 2;
+   memcpy(entry.dateCreated, theCluster + index, 2);
+   index = index + 2;
+   memcpy(entry.lastAccessed, theCluster + index, 2);
+   index = index + 2;
+   memcpy(entry.fstClusHI, theCluster + index, 2);
+   index = index + 2;
+   memcpy(entry.writeTime, theCluster + index, 2);
+   index = index + 2;
+   memcpy(entry.writeDate, theCluster + index, 2);
+   index = index + 2;
+   memcpy(entry.fstClusLO, theCluster + index, 2);
+   index = index + 2;
+   memcpy(entry.size, theCluster + index, 4);
+   index = index + 4;
+   return entry;
+}

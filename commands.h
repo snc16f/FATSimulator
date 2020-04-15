@@ -41,6 +41,21 @@ typedef struct{
 	char * buffer;
 } TheImage;
 
+typedef struct{
+   unsigned char dirName[11];
+   unsigned char attributes[1];
+   unsigned char ntres[1];
+   unsigned char tenthSecCreated[1];
+   unsigned char timeCreated[2];
+   unsigned char dateCreated[2];
+   unsigned char lastAccessed[2];
+   unsigned char fstClusHI[2];
+   unsigned char writeTime[2];
+   unsigned char writeDate[2];
+   unsigned char fstClusLO[2];
+   unsigned char size[4];
+} DirectoryEntry;
+
 //---------------------------------------Functions for Main.cpp---------------------------------//
 void prompt(TheImage * image);
 void readAndDetermine(char * usrInput, TheImage * image);
@@ -49,6 +64,7 @@ void readAndDetermine(char * usrInput, TheImage * image);
 //---------------------------------------Functions for Parsing Input---------------------------------//
 void seperateBySpace(char * line, int * numOfToks, char newLines[100][100]);
 int Hex2Decimal(const unsigned char * buffer, int bufferSize);
+void Hex2ASCII(const unsigned char * buffer, int bufferSize, char * str);
 int power(int base, int raise);
 
 
@@ -59,6 +75,7 @@ BootSector read_Sector(const char * imageFileName);
 
 //---------------------------------------Functions for getting data from the Image File---------------------------------//
 int Num_Clusters(const TheImage * image);
+int Cluster_Size(const TheImage * image);
 int FAT_Size(const TheImage * image);
 void Read_FATRegion(const TheImage * image, int * FATRegion);
 int FAT_Index(const TheImage * image);
@@ -66,7 +83,15 @@ int DATA_Index(const TheImage * image);
 int RSRVD_Size(const TheImage * image);
 
 
+//---------------------------------------Directory Entry Functions--------------------------------------------//
+void read_Entries_from_Dir(const TheImage * image, DirectoryEntry dirEntries[], int clusterNum, int *entryCount);
+void find_Clusters_Associated(const TheImage * image, int strtCluster, int * ass_clusters);
+void find_Cluster(const TheImage * image, int currClusterNum, unsigned char * theCluster);
+DirectoryEntry read_Entry(const unsigned char * theCluster, int entryNum);
+
+
 //---------------------------------------Functions for the 14 Input Commands---------------------------------//
 void get_info(const TheImage * image);
+void show_size(const TheImage * image, char tokens[]);
 
 #endif

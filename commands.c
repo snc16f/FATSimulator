@@ -28,6 +28,21 @@ int Hex2Decimal(const unsigned char * buffer, int bufferSize) {  //Little Endian
 	return decimal;
 }
 
+void Hex2ASCII(const unsigned char * buffer, int bufferSize, char * str)
+{
+   int i = 0;
+   int j;
+   char c;
+   while(i < bufferSize)
+   {
+      j = (int) buffer[i];
+      c = (char) j;
+      str[i] = c;
+      i++;
+   }
+   str[bufferSize] = '\0'; // must null terminate
+}
+
 int power(int base, int raise) {
 	if (raise == 0)
 		return 1;
@@ -46,4 +61,34 @@ void get_info(const TheImage * image)
 	printf("TotSec32: %d\n", Hex2Decimal(image->boot.TotSec32, Total32Size));
 	printf("FATSz32: %d\n", Hex2Decimal(image->boot.FATSz32, FAT32Size));
 	printf("RootClus: %d\n", Hex2Decimal(image->boot.RootClus, RootSize));
+}
+
+void show_size(const TheImage * image, char tokens[])
+{
+   DirectoryEntry dirEntries[100];
+   int entryCount = 0;
+   int index = -1;
+
+   read_Entries_from_Dir(image , dirEntries, image->currCluster, &entryCount);
+   int i = 0;
+   while(i < entryCount)
+   {
+      char tmp_filename[12];
+      Hex2ASCII(dirEntries[i].dirName, 11, tmp_filename);
+      if(strcmp(tokens[1],tmp_filename) == 0 && dirEntries[i].attributes[0] == 0x20)
+      {
+         index = i;
+         break;
+      }
+      i++;
+   }
+
+   if(index == -1) // index never changed so file isnt real
+      printf("Error: The filename you have provided is not an existing file\n");
+
+   int sizeOfFile;
+   sizeOfFile = Hex2Decimal(dirEntries[index].size, 4);
+   printf("The size of '%s' is - %d\n", tokens[1], sizeOfFile);
+
+   entryCount = 0;
 }
