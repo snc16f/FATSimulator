@@ -20,8 +20,11 @@ Division of Labor:
 The members of this project are Samantha Chaves, Tyler Gurley, and Justin Richman. Below is the division of each members contribution to the project.
 
 Samantha Chaves-
+  1. Implemented the INFO command
 
 Tyler Gurley-
+  1. Implemented the EXIT command
+  2. Recognition of commands through parsing
 
 Justin Richman-
 

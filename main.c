@@ -1,5 +1,5 @@
 /* Reads in command from command line */
-//#include "commands.h"
+#include "commands.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -8,25 +8,7 @@
 #include <time.h>
 #include <math.h>
 
-typedef struct{
-	//OpenFile ....
-	int numOfOpenFiles;
-	//BootSector ....
-	int size;
-	int currCluster;
-	char filename[100];
-	char currDir[100][100];
-	int currDepth;
-	char * buffer;
-} TheImage;
 
-//==============================================================================
-//  Initialization
-void seperateBySpace(char * line, int * numOfToks, char newLines[100][100]);
-void prompt(TheImage * image);
-void readAndDetermine(char * usrInput, TheImage * image);
-
-//==============================================================================
 
 int main(int argc, char * argv[]){
 
@@ -37,11 +19,27 @@ int main(int argc, char * argv[]){
 		exit(EXIT_FAILURE);
 	}
 
+	char line[10000]; // for reading command line input
+	char * imageFileName; // string for storing the file name
 	TheImage * image = calloc(1, sizeof(*image));
 
+	imageFileName = (char*)calloc(strlen(argv[1])+1,sizeof(char));  //read name of the input file
+	strcpy(imageFileName, argv[1]);								// contains "fat32.img
+
+	read_IMGFile(imageFileName, image);
+	image->boot = read_Sector(imageFileName);				//parse through the image file to read in boot sector info
+
+	free(imageFileName);
+
+	int root = Hex2Decimal(image->boot.RootClus, RootSize);    	// set root cluster as current cluster
+	image->currCluster = root;
+
+	int clusSize[Num_Clusters(image)];
+	Read_FATRegion(image, clusSize);
 
 	printf("\n");
 	prompt(image);
+
 	char usrInput[300];
 	while(fgets(usrInput,300,stdin))
 	{
@@ -51,8 +49,6 @@ int main(int argc, char * argv[]){
 
 	return 1;
 }
-//end of main()
-//==============================================================================
 
 void prompt(TheImage * image)	// - Prints the prompt for user input
 {
@@ -66,31 +62,24 @@ void prompt(TheImage * image)	// - Prints the prompt for user input
 	printf("%s>", prompt);
 }
 
-//==============================================================================
-
 void readAndDetermine(char * usrInput, TheImage * image) // - reads user input and runs command
 {
 	char tokens[100][100];
 	int numOfToks;
-  usrInput[strlen(usrInput)-1] = '\0';
+    usrInput[strlen(usrInput)-1] = '\0';
 	seperateBySpace(usrInput, &numOfToks, tokens);
-
-	// int i;
-	// for(i = 0; i < numOfToks; i++)
-	// {
-	// 	printf("%s\n", tokens[i]);
-	// }
 
 	// Check what our command is and run
 	if(strcmp(tokens[0], "exit") == 0)
 	{
 		printf("You want to run the 'exit' command with %d arguments\n", numOfToks-1);
-    //free the image allocation
-    exit(0);
+    	free(image);	//free image file
+    	exit(0);
 	}
-	else if(strcmp(tokens[0], "info") == 0)
+	else if(strcmp(tokens[0], "info") == 0)  //get BPB information from image file and prints it in decimal value
 	{
 		printf("You want to run the 'info' command with %d arguments\n", numOfToks-1);
+		get_info(image);
 	}
 	else if(strcmp(tokens[0], "size") == 0)
 	{
@@ -147,21 +136,5 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 	else
 	{
 		printf("Command entered (%s) is not supported\n", tokens[0]);
-	}
-}
-
-//==============================================================================
-
-void seperateBySpace(char * line, int * numOfToks, char newLines[100][100]) // seperates a line
-{                                                                           //into tokens using space as the key value
-	char helper[strlen(line)+1];
-	strcpy(helper, line);
-	char * check = strtok(helper, " ");
-	*numOfToks = 0;
-	while(check != NULL)
-	{
-		strcpy(newLines[*numOfToks], check);
-		check = strtok(NULL, " ");
-		*numOfToks = *numOfToks + 1;
 	}
 }
