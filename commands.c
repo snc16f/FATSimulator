@@ -43,7 +43,7 @@ void get_info(const TheImage * image)
 	printf("SecPerClus: %d\n", Hex2Decimal(image->boot.SecPerClus, SecSize));
 	printf("RsvdSecCnt: %d\n", Hex2Decimal(image->boot.RsvdSecCnt, RsvdSize));
 	printf("NumFATs: %d\n", Hex2Decimal(image->boot.NumFATs, FATsSize));
-	printf("TotSec32: %d\n", Hex2Decimal(image->boot.TotSec32, Total32Size));  //*FIX
-	printf("FATSz32: %d\n", Hex2Decimal(image->boot.FATSz32, FAT32Size));		//*FIX
+	printf("TotSec32: %d\n", Hex2Decimal(image->boot.TotSec32, Total32Size));
+	printf("FATSz32: %d\n", Hex2Decimal(image->boot.FATSz32, FAT32Size));
 	printf("RootClus: %d\n", Hex2Decimal(image->boot.RootClus, RootSize));
 }
