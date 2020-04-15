@@ -23,7 +23,7 @@ Samantha Chaves-
   1. Implemented the INFO command
 
 Tyler Gurley-
-  1. Implemented the EXIT command
+  1. Implemented the EXIT, SIZE commands
   2. Recognition of commands through parsing
 
 Justin Richman-
