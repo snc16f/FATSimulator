@@ -92,6 +92,6 @@ DirectoryEntry read_Entry(const unsigned char * theCluster, int entryNum);
 
 //---------------------------------------Functions for the 14 Input Commands---------------------------------//
 void get_info(const TheImage * image);
-void show_size(const TheImage * image, char tokens[]);
+void show_size(const TheImage * image, char tokens[][]);
 
 #endif

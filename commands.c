@@ -63,7 +63,7 @@ void get_info(const TheImage * image)
 	printf("RootClus: %d\n", Hex2Decimal(image->boot.RootClus, RootSize));
 }
 
-void show_size(const TheImage * image, char tokens[])
+void show_size(const TheImage * image, char tokens[][])
 {
    DirectoryEntry dirEntries[100];
    int entryCount = 0;
