@@ -63,7 +63,7 @@ void get_info(const TheImage * image)
 	printf("RootClus: %d\n", Hex2Decimal(image->boot.RootClus, RootSize));
 }
 
-void show_size(const TheImage * image, char tokens[][])
+void show_size(const TheImage * image, char tokens[100][100])
 {
    DirectoryEntry dirEntries[100];
    int entryCount = 0;
@@ -84,10 +84,10 @@ void show_size(const TheImage * image, char tokens[][])
    }
 
    if(index == -1) // index never changed so file isnt real
-   {
-	printf("Error: The filename you have provided is not an existing file\n");
-	return;
-   }
+	{
+		printf("Error: The filename you have provided is not an existing file\n");
+		return;
+	}
 
    int sizeOfFile;
    sizeOfFile = Hex2Decimal(dirEntries[index].size, 4);
