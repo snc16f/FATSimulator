@@ -66,6 +66,11 @@ int Num_Clusters(const TheImage * image)
 	return FAT_Size(image)/4;
 }
 
+int Cluster_Size(const TheImage * image)
+{
+   return (Hex2Decimal(image->boot.BytsPerSec, BytsSize) * Hex2Decimal(image->boot.SecPerClus, SecSize));
+}
+
 int FAT_Size(const TheImage * image) //obtain the size of the FAT Region
 {
 	//obtain the decimal value of the FATSz32, NumFATS, and BytsPerSec in the bootsector struct
@@ -118,7 +123,6 @@ int RSRVD_Size(const TheImage * image)  //obtain the size of the Reserved Region
 
 	return RSRVDsize;
 }
-
 
 void read_Entries_from_Dir(const TheImage * image, DirectoryEntry dirEntries[], int clusterNum, int *entryCount)
 {
