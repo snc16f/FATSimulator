@@ -105,17 +105,59 @@ void show_size(const TheImage * image, char tokens[100][100])
 
 // print the name field for the directories within the contents of DIRNAME including the “.” and “..”
 // directories. For simplicity, you may print each of the directory entries on separate lines
-bool show_ls(const TheImage * image, char tokens[100][100]) {
+void show_ls(const TheImage * image, char tokens[100][100]) {
 
 	DirectoryEntry dirEntries[150];
 	int num_directories = 0;
 	int i, j;
+	int search = 0;
 
 	// if no arguments, then use cwd
 	if (strcmp(tokens[1],"") == 0) {
 		read_Entries_from_Dir(image, dirEntries,image->currCluster, &num_directories);
 	}
+	else {
 
+//Space error checking can be added
+
+	// Looking for entered dirName
+	int whereDir = -1;
+	read_Entries_from_Dir(image, dirEntries,image->currCluster, &num_directories);
+	for (i = 0; i < num_directories; i++) {
+		char dirName[12];
+		Hex2ASCII(dirEntries[i].dirName, 11, dirName);
+		j = 0;
+		while(j < strlen(dirName)){
+			if(dirName[j] == ' ')
+				dirName[j] = '\0';
+				j++;
+		}
+		if (dirEntries[i].attributes[0] == 0x10 && strcmp(tokens[1],dirName) == 0) {
+			whereDir = i;
+			break;
+		}
+	}
+	num_directories = 0;
+
+	// dirName does not exist
+	if (whereDir == -1) {
+		printf("Directory %s can not be found\n", tokens[1]);
+		search = -1;
+	}
+
+	//find the cluster of the dir
+	unsigned char findClusterNum[4];
+	for (i = 0; i < 2; i++)
+		findClusterNum[i] = dirEntries[whereDir].fstClusLO[i];
+	for (i = 0; i < 2; i++)
+		findClusterNum[i+2] = dirEntries[whereDir].fstClusHI[i];
+
+	int finalClusterNum = Hex2Decimal(findClusterNum, 4);
+
+	read_Entries_from_Dir(image, dirEntries,finalClusterNum, &num_directories);
+}
+
+if(search == 0){
 	//create array of fixed directory entry structs
 	DirectoryEntry sortDirectories[num_directories];
 
@@ -138,8 +180,6 @@ bool show_ls(const TheImage * image, char tokens[100][100]) {
 		if (sortDirectories[i].attributes[0] == 0x10)
 			printf(ANSI_COLOR_RESET);
 	}
-
-	// return success
-	return true;
+}
 
 }

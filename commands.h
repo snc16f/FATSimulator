@@ -100,7 +100,7 @@ int RSRVD_Size(const TheImage * image);
 //---------------------------------------Functions for the 14 Input Commands---------------------------------//
 void get_info(const TheImage * image);
 void show_size(const TheImage * image, char tokens[100][100]);
-bool show_ls(const TheImage * image, char tokens[100][100]);
+void show_ls(const TheImage * image, char tokens[100][100]);
 
 
 

@@ -5,7 +5,7 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
-
+#include "commands.h"
 
 
 int main(int argc, char * argv[]){
@@ -149,5 +149,9 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 	else
 	{
 		printf("Command entered (%s) is not supported\n", tokens[0]);
+	}
+	int i;
+	for(i = 0; i < 99; i++){
+	tokens[i][0] = '\0';
 	}
 }

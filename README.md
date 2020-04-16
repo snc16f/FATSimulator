@@ -28,6 +28,7 @@ Tyler Gurley-
   2. Recognition of commands through parsing
 
 Justin Richman-
+  1. Implemented LS to take commands
 
 
 Bugs:
