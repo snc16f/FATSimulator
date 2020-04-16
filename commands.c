@@ -84,7 +84,10 @@ void show_size(const TheImage * image, char tokens[])
    }
 
    if(index == -1) // index never changed so file isnt real
-      printf("Error: The filename you have provided is not an existing file\n");
+   {
+	printf("Error: The filename you have provided is not an existing file\n");
+	return;
+   }
 
    int sizeOfFile;
    sizeOfFile = Hex2Decimal(dirEntries[index].size, 4);
