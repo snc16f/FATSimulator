@@ -21,6 +21,7 @@ The members of this project are Samantha Chaves, Tyler Gurley, and Justin Richma
 
 Samantha Chaves-
   1. Implemented the INFO command
+  2. Implemented LS command
 
 Tyler Gurley-
   1. Implemented the EXIT, SIZE commands

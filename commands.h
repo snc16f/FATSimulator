@@ -9,6 +9,11 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
+#include <stdbool.h>
+
+// colored output
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_RESET "\x1b[0m"
 
 // predefined variables for Boot Sector per Specification PDF file
 #define BytsSize 2
@@ -66,6 +71,8 @@ void seperateBySpace(char * line, int * numOfToks, char newLines[100][100]);
 int Hex2Decimal(const unsigned char * buffer, int bufferSize);
 void Hex2ASCII(const unsigned char * buffer, int bufferSize, char * str);
 int power(int base, int raise);
+int compareDirs(const void * p1, const void * p2);
+
 
 
 //---------------------------------------Functions for Reading in the Image File---------------------------------//
@@ -83,15 +90,20 @@ int DATA_Index(const TheImage * image);
 int RSRVD_Size(const TheImage * image);
 
 
-//---------------------------------------Directory Entry Functions--------------------------------------------//
-void read_Entries_from_Dir(const TheImage * image, DirectoryEntry dirEntries[], int clusterNum, int *entryCount);
-void find_Clusters_Associated(const TheImage * image, int strtCluster, int * ass_clusters);
-void find_Cluster(const TheImage * image, int currClusterNum, unsigned char * theCluster);
-DirectoryEntry read_Entry(const unsigned char * theCluster, int entryNum);
+// //---------------------------------------Directory Entry Functions--------------------------------------------//
+ void read_Entries_from_Dir(const TheImage * image, DirectoryEntry dirEntries[], int clusterNum, int *entryCount);
+ void find_Clusters_Associated(const TheImage * image, int strtCluster, int * ass_clusters);
+ void find_Cluster(const TheImage * image, int currClusterNum, unsigned char * theCluster);
+ DirectoryEntry read_Entry(const unsigned char * theCluster, int entryNum);
 
 
 //---------------------------------------Functions for the 14 Input Commands---------------------------------//
 void get_info(const TheImage * image);
 void show_size(const TheImage * image, char tokens[100][100]);
+bool show_ls(const TheImage * image, char tokens[100][100]);
+
+
+
+
 
 #endif

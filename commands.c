@@ -49,6 +49,13 @@ int power(int base, int raise) {
 	else
 		return (base * power(base, raise-1));
 }
+//function to compare two strings, used by qsort
+int compareDirs(const void * p1, const void * p2)
+{
+	DirectoryEntry * d1 = (DirectoryEntry *) p1;
+	DirectoryEntry * d2 = (DirectoryEntry *) p2;
+	return strcmp( d1 -> dirName, d2 -> dirName );
+}
 
 
 //---------------------------------------Functions for Input Commands---------------------------------//
@@ -94,4 +101,45 @@ void show_size(const TheImage * image, char tokens[100][100])
    printf("The size of '%s' is - %d\n", tokens[1], sizeOfFile);
 
    entryCount = 0;
+}
+
+// print the name field for the directories within the contents of DIRNAME including the “.” and “..”
+// directories. For simplicity, you may print each of the directory entries on separate lines
+bool show_ls(const TheImage * image, char tokens[100][100]) {
+
+	DirectoryEntry dirEntries[150];
+	int num_directories = 0;
+	int i, j;
+
+	// if no arguments, then use cwd
+	if (strcmp(tokens[1],"") == 0) {
+		read_Entries_from_Dir(image, dirEntries,image->currCluster, &num_directories);
+	}
+
+	//create array of fixed directory entry structs
+	DirectoryEntry sortDirectories[num_directories];
+
+	//load directory entries into array for sorting
+	for (i = 0; i < num_directories; i++)
+		sortDirectories[i] = dirEntries[i];
+
+	//sort temp array
+	qsort(sortDirectories, num_directories, sizeof(const DirectoryEntry), compareDirs);
+
+	// print out dir entry names
+	printf("\n");
+	for (i = 0; i < num_directories; i++) {
+		if (sortDirectories[i].attributes[0] == 0x10)
+			printf(ANSI_COLOR_MAGENTA);
+		char name[11];
+		Hex2ASCII(sortDirectories[i].dirName, 11, name);
+		if (strcmp(name, "") == 0) continue; // ignore empty dir entries
+		printf("%s\n", name);
+		if (sortDirectories[i].attributes[0] == 0x10)
+			printf(ANSI_COLOR_RESET);
+	}
+
+	// return success
+	return true;
+
 }

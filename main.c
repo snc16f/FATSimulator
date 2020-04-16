@@ -1,5 +1,3 @@
-/* Reads in command from command line */
-#include "commands.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -88,11 +86,6 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 		{
 			show_size(image, tokens);
 		}
-		//check for valid tokened FILENAME (aka contains no spaces)
-		// else if(strchr(' ',tokens[1]) != NULL)
-		// {
-		// 	printf("Invalid filename (CANNOT CONATIN SPACES).\n");
-		// }
 		else
 		{
 			printf("Invalid command entry. Too many/little arguments provided.\nUsage: size [FILENAME]\n");
@@ -101,6 +94,13 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 	else if(strcmp(tokens[0], "ls") == 0)
 	{
 		printf("You want to run the 'ls' command with %d arguments\n", numOfToks-1);
+		if(numOfToks==2)
+		{
+		    show_ls(image, tokens);
+		}
+		else
+			show_ls(image,tokens);
+
 	}
 	else if(strcmp(tokens[0], "cd") == 0)
 	{
