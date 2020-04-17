@@ -51,9 +51,11 @@ int main(int argc, char * argv[]){
 void prompt(TheImage * image)	// - Prints the prompt for user input
 {
 	char prompt[100];
+	prompt[0] = '\0';
 	int i = 0;
 	for(i=0; i < image->currDepth; i++)
 	{
+		printf("currD: %d  currdir: %s\n",image->currDepth,image->currDir[i]);
 		strcat(prompt, "/");
 		strcat(prompt, image->currDir[i]);
 	}
@@ -105,6 +107,21 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 	else if(strcmp(tokens[0], "cd") == 0)
 	{
 		printf("You want to run the 'cd' command with %d arguments\n", numOfToks-1);
+		if(strcmp(tokens[1],".") == 0)
+		{
+			//do nothing
+		}
+		else if(numOfToks == 2)
+		{
+			do_cd(image, tokens);
+		}
+		else if(numOfToks == 1)
+		{
+			//do nothing
+		}
+		else{
+			printf("Invalid command entry. Too many/little arguments provided.\nUsage: cd [DIRECTORY]\n");
+		}
 	}
 	else if(strcmp(tokens[0], "creat") == 0)
 	{

@@ -158,14 +158,11 @@ void show_ls(const TheImage * image, char tokens[100][100]) {
 }
 
 if(search == 0){
-	//create array of fixed directory entry structs
 	DirectoryEntry sortDirectories[num_directories];
 
-	//load directory entries into array for sorting
 	for (i = 0; i < num_directories; i++)
 		sortDirectories[i] = dirEntries[i];
 
-	//sort temp array
 	qsort(sortDirectories, num_directories, sizeof(const DirectoryEntry), compareDirs);
 
 	// print out dir entry names
@@ -181,5 +178,67 @@ if(search == 0){
 			printf(ANSI_COLOR_RESET);
 	}
 }
+}
 
+void do_cd(TheImage * image, char tokens[100][100]){
+
+	DirectoryEntry dirEntries[150];
+	int num_directories = 0;
+	int i, j;
+	bool search = 1;
+
+	int whereDir = -1;
+	read_Entries_from_Dir(image, dirEntries,image->currCluster, &num_directories);
+	for (i = 0; i < num_directories; i++) {
+		char dirName[12];
+		Hex2ASCII(dirEntries[i].dirName, 11, dirName);
+		j = 0;
+		while(j < strlen(dirName)){
+			if(dirName[j] == ' ')
+				dirName[j] = '\0';
+				j++;
+		}
+		if (dirEntries[i].attributes[0] == 0x10 && strcmp(tokens[1],dirName) == 0) {
+			whereDir = i;
+			break;
+		}
+	}
+	num_directories = 0;
+
+	// dirName does not exist
+	if (whereDir == -1) {
+		printf("Directory %s can not be found\n", tokens[1]);
+		search = 0;
+	}
+
+if(search == 1){
+	unsigned char findClusterNum[4];
+	for (i = 0; i < 2; i++)
+		findClusterNum[i] = dirEntries[whereDir].fstClusLO[i];
+	for (i = 0; i < 2; i++)
+		findClusterNum[i+2] = dirEntries[whereDir].fstClusHI[i];
+
+	int finalClusterNum = Hex2Decimal(findClusterNum, 4);
+
+	image->currCluster = finalClusterNum;
+
+	if (image->currCluster <= Hex2Decimal(image->boot.RootClus, 4))
+		image->currDepth = 0;
+	else {
+		if (strcmp(tokens[1],"..") != 0 && (strcmp(tokens[1],".")!= 0)) {
+			char dirName[12];
+			Hex2ASCII(dirEntries[whereDir].dirName, 11, dirName);
+			j = 0;
+			while(j < strlen(dirName)){
+				if(dirName[j] == ' ')
+					dirName[j] = '\0';
+					j++;
+			}
+			strcpy(image->currDir[image->currDepth], dirName);
+			image->currDepth++;
+		}
+		else if(strcmp(tokens[1],"..") == 0){
+			image->currDepth--;
+		}
+	}}
 }

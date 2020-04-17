@@ -101,6 +101,7 @@ int RSRVD_Size(const TheImage * image);
 void get_info(const TheImage * image);
 void show_size(const TheImage * image, char tokens[100][100]);
 void show_ls(const TheImage * image, char tokens[100][100]);
+void do_cd(TheImage * image, char tokens[100][100]);
 
 
 
