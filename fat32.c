@@ -220,3 +220,123 @@ DirectoryEntry read_Entry(const unsigned char * theCluster, int entryNum)
    index = index + 4;
    return entry;
 }
+
+int get_AvailableCluster(const TheImage * image) //perform a linear search over the FAT until an empty clushter is found
+{
+   int FAT[Num_Clusters(image)]; // creat a FAT array with the num of clusters
+   Read_FATRegion(image, FAT); // stores FAT region into int array
+
+   int i = Hex2Decimal(image->boot.RootClus, RootSize);
+
+   while(i< Num_Clusters(image)){
+      if (FAT[i] == 0)
+         return i;
+      i++;
+   }
+   return -1;
+}
+
+DirectoryEntry create_DIRENTRY(const char * Filename, unsigned char attr, unsigned int availablecluster)
+{
+   DirectoryEntry dirEntry;
+   int i=0;
+   int fileSize;
+
+   if(strlen(Filename) <= 11)
+      fileSize= strlen(Filename);
+
+   while(i < fileSize)
+   {
+      dirEntry.dirName[i] = (unsigned char) Filename[i];
+      i++;
+   }
+
+   i=fileSize;
+   while( i < 11)
+   {
+      dirEntry.dirName[i] = 0x00;
+      i++;
+   }
+
+   dirEntry.attributes[0] = attr;         // Set DIR_Attr to ATTR_ARCHIVE
+   dirEntry.ntres[0] = 0x00;              // Set DIR_NTRes, reserved.
+
+   unsigned char bytes[4];
+   ConverToUnsignedChar(availablecluster, bytes);
+
+   dirEntry.fstClusLO[0] = bytes[0];      //Set DIR_FstClusLO nad DIR_FstClusHI after converting bytes to unsigned chars
+   dirEntry.fstClusLO[1] = bytes[1];
+   dirEntry.fstClusHI[0] = bytes[2];
+   dirEntry.fstClusHI[1] = bytes[3];
+
+   while(i<4)                             //Set DIR_FileSize =0;
+   {
+      dirEntry.size[i] = 0x00;
+      i++;
+   }
+
+   return dirEntry;
+
+}
+
+void Update_FATEntry(const TheImage * image, int cluster, unsigned char * empty_clus)
+{
+   int FATindexpos = FAT_Index(image);
+   int position = FATindexpos + cluster * 4; //obtain the correct position located in the buffer
+   int i=0;
+
+   while(i<4)
+   {
+      image->buffer[position+i] = empty_clus[i];   //insert )xFFFFFFFF
+      i++;
+   }
+}
+bool add_DIRENTRY(const TheImage * image, DirectoryEntry newEntry, int cluster)
+{
+   int i, j;
+   int position = DATA_Index(image) + (cluster - 2) * Cluster_Size(image);//obtain the correct position located in the buffer
+
+   // check for the first empty space
+   int clusterPos = -1;
+   for (i = 0; i < 8; i++)
+   {
+      for (j = 0; j < 64; j++)
+      {
+         if (image->buffer[position + j + (i * 64)] != 0x00)
+            break;
+         else if (j == 63)
+            clusterPos = i;
+      }
+      if (clusterPos != -1) break;
+   }
+
+   position += (clusterPos * 64) + 32;
+
+   for (i = 0; i <11; i++)
+      image->buffer[position++] = newEntry.dirName[i];
+   for (i = 0; i < 1; i++)
+      image->buffer[position++] = newEntry.attributes[i];
+   for (i = 0; i < 1; i++)
+      image->buffer[position++] = newEntry.ntres[i];
+   for (i = 0; i < 1; i++)
+      image->buffer[position++] = newEntry.tenthSecCreated[i];
+   for (i = 0; i < 2; i++)
+      image->buffer[position++] = newEntry.timeCreated[i];
+   for (i = 0; i < 2; i++)
+      image->buffer[position++] = newEntry.dateCreated[i];
+   for (i = 0; i < 2; i++)
+      image->buffer[position++] = newEntry.lastAccessed[i];
+   for (i = 0; i < 2; i++)
+      image->buffer[position++] = newEntry.fstClusHI[i];
+   for (i = 0; i < 2; i++)
+      image->buffer[position++] = newEntry.writeTime[i];
+   for (i = 0; i < 2; i++)
+      image->buffer[position++] = newEntry.writeDate[i];
+   for (i = 0; i < 2; i++)
+      image->buffer[position++] = newEntry.fstClusLO[i];
+   for (i = 0; i < 4; i++)
+      image->buffer[position++] = newEntry.size[i];
+
+   return true;
+
+}

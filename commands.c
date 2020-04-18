@@ -57,6 +57,12 @@ int compareDirs(const void * p1, const void * p2)
 	return strcmp( d1 -> dirName, d2 -> dirName );
 }
 
+void ConverToUnsignedChar(int availableclus, unsigned char * bytes) {
+	bytes[0] = availableclus & 0xFF;
+	bytes[1] = (availableclus >> 8) & 0xFF;
+	bytes[2] = (availableclus >> 16) & 0xFF;
+	bytes[3] = (availableclus >> 24) & 0xFF;
+}
 
 //---------------------------------------Functions for Input Commands---------------------------------//
 void get_info(const TheImage * image)
@@ -241,4 +247,66 @@ if(search == 1){
 			image->currDepth--;
 		}
 	}}
+}
+
+bool creat_command(TheImage * image,char tokens[100][100]) {
+
+	int clusters[100];
+	DirectoryEntry entries[100];
+	int FileCreated=0;
+	int entryCount = 0;
+	int i, j;
+
+	read_Entries_from_Dir(image, entries, image->currCluster, &entryCount);
+
+	i=0;
+	while(i<entryCount)
+	{
+		char fileName[11+1];
+		Hex2ASCII(entries[i].dirName, 11, fileName);
+		j = 0;
+		while(j < strlen(fileName))
+		{
+			if(fileName[j] == ' ')
+				fileName[j] = '\0';
+				j++;
+		}
+
+		if (strcmp(tokens[1],fileName)==0) //check if the fileNAme is already listed as a directory
+		{
+			printf("Error: File %s already exists.\n",fileName);
+			return false;
+		}
+		i++;
+	}
+	entryCount = 0; // reset this
+
+	//allocate the first cluster of the file
+	int availableclus = get_AvailableCluster(image);
+
+	//update the FAT entry to 0xFFFFFFFF
+	unsigned char emptyCluster[] = {0xFF,0xFF,0xFF,0xFF};
+	Update_FATEntry(image, availableclus, emptyCluster);
+
+	char * newfileName = tokens[1];
+
+	// Create a DIRENTRY using the newfile name passed in as an argument
+	//set DIR_Attr to ATTR_ARCHIVE
+	DirectoryEntry newDir = create_DIRENTRY(newfileName, 0x20, availableclus);
+	find_Clusters_Associated(image, image->currCluster, clusters);
+
+	//Store the DIRENTRY at the first empty space
+	i = 0;
+	while (clusters[i] != -1)
+	{
+		if (add_DIRENTRY(image,newDir,clusters[i]))
+		{
+			FileCreated = 1;
+			break;
+		}
+		i++;
+	}
+	printf("File %s was successfully created.\n", tokens[1]);
+
+	return 1;
 }

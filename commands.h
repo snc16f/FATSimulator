@@ -1,6 +1,9 @@
 /* All of the function declarations for all the functions of the program */
 #ifndef COMMANDS_H
 #define COMMANDS_H
+// colored output
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_RESET "\x1b[0m"
 
 #include <stdio.h>
 #include <ctype.h>
@@ -11,9 +14,6 @@
 #include <math.h>
 #include <stdbool.h>
 
-// colored output
-#define ANSI_COLOR_MAGENTA "\x1b[35m"
-#define ANSI_COLOR_RESET "\x1b[0m"
 
 // predefined variables for Boot Sector per Specification PDF file
 #define BytsSize 2
@@ -23,6 +23,7 @@
 #define Total32Size 4
 #define FAT32Size 4
 #define RootSize 4
+
 
 typedef struct {
 	unsigned char BytsPerSec[BytsSize];
@@ -72,6 +73,7 @@ int Hex2Decimal(const unsigned char * buffer, int bufferSize);
 void Hex2ASCII(const unsigned char * buffer, int bufferSize, char * str);
 int power(int base, int raise);
 int compareDirs(const void * p1, const void * p2);
+void ConverToUnsignedChar(int availablecluster, unsigned char bytes[]);
 
 
 
@@ -96,12 +98,19 @@ int RSRVD_Size(const TheImage * image);
  void find_Cluster(const TheImage * image, int currClusterNum, unsigned char * theCluster);
  DirectoryEntry read_Entry(const unsigned char * theCluster, int entryNum);
 
+// //---------------------------------------File Creation Functions--------------------------------------------//
+DirectoryEntry create_DIRENTRY(const char * Filename, unsigned char attr, unsigned int availablecluster);
+int get_AvailableCluster(const TheImage * image);
+void Update_FATEntry(const TheImage * image, int cluster, unsigned char * empty_clus);
+bool add_DIRENTRY(const TheImage * image, DirectoryEntry d, int cluster);
+
 
 //---------------------------------------Functions for the 14 Input Commands---------------------------------//
 void get_info(const TheImage * image);
 void show_size(const TheImage * image, char tokens[100][100]);
 void show_ls(const TheImage * image, char tokens[100][100]);
 void do_cd(TheImage * image, char tokens[100][100]);
+bool creat_command(TheImage * image,char tokens[100][100]);
 
 
 

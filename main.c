@@ -66,15 +66,15 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 {
 	char tokens[100][100];
 	int numOfToks;
-   usrInput[strlen(usrInput)-1] = '\0';
+    usrInput[strlen(usrInput)-1] = '\0';
 	seperateBySpace(usrInput, &numOfToks, tokens);
 
 	// Check what our command is and run
 	if(strcmp(tokens[0], "exit") == 0)
 	{
 		printf("You want to run the 'exit' command with %d arguments\n", numOfToks-1);
-   	free(image);	//free image file
-   	exit(0);
+   		free(image);	//free image file
+   		exit(0);
 	}
 	else if(strcmp(tokens[0], "info") == 0)  //get BPB information from image file and prints it in decimal value
 	{
@@ -126,6 +126,15 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 	else if(strcmp(tokens[0], "creat") == 0)
 	{
 		printf("You want to run the 'creat' command with %d arguments\n", numOfToks-1);
+		if(numOfToks ==2)
+		{
+			creat_command(image, tokens);
+		}
+		else
+		{
+			printf("Error: No filename provided.\n");  //checks if there was a filename provided
+
+		}
 	}
 	else if(strcmp(tokens[0], "mkdir") == 0)
 	{
