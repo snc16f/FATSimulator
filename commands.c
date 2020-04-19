@@ -49,19 +49,26 @@ int power(int base, int raise) {
 	else
 		return (base * power(base, raise-1));
 }
-//function to compare two strings, used by qsort
-int compareDirs(const void * p1, const void * p2)
+int compare2Directories(const void * a, const void * b)
 {
-	DirectoryEntry * d1 = (DirectoryEntry *) p1;
-	DirectoryEntry * d2 = (DirectoryEntry *) p2;
+	DirectoryEntry * d1 = (DirectoryEntry *) a;
+	DirectoryEntry * d2 = (DirectoryEntry *) b;
+
 	return strcmp( d1 -> dirName, d2 -> dirName );
 }
+int set_FileMode(char * permission)
+{
+	if(strcmp(permission, "r") == 0)
+		 return 0;
+	else if(strcmp(permission, "w") == 0)
+		 return 1;
+	else if(strcmp(permission, "rw") == 0)
+		 return 2;
+	else if(strcmp(permission, "wr") == 0)
+		 return 3;
+	else
+		return -1;
 
-void ConverToUnsignedChar(int availableclus, unsigned char * bytes) {
-	bytes[0] = availableclus & 0xFF;
-	bytes[1] = (availableclus >> 8) & 0xFF;
-	bytes[2] = (availableclus >> 16) & 0xFF;
-	bytes[3] = (availableclus >> 24) & 0xFF;
 }
 
 //---------------------------------------Functions for Input Commands---------------------------------//
@@ -169,7 +176,7 @@ if(search == 0){
 	for (i = 0; i < num_directories; i++)
 		sortDirectories[i] = dirEntries[i];
 
-	qsort(sortDirectories, num_directories, sizeof(const DirectoryEntry), compareDirs);
+	qsort(sortDirectories, num_directories, sizeof(const DirectoryEntry), compare2Directories);
 
 	// print out dir entry names
 	printf("\n");
@@ -273,7 +280,7 @@ void creat_command(TheImage * image,char tokens[100][100]) {
 				j++;
 		}
 
-		if (strcmp(tokens[1],fileName)==0) //check if the fileNAme is already listed as a directory
+		if (strcmp(tokens[1],fileName)==0) //check if the fileName is already listed as a directory
 		{
 			printf("Error: File %s already exists.\n",fileName);
 			error = 1;
@@ -373,4 +380,87 @@ void make_Dir(TheImage * image,char tokens[100][100]){
 	printf("Directory %s was created\n", tokens[1]);
 }
 
+}
+bool open_file( TheImage * image, char tokens[100][100])
+{
+	DirectoryEntry entries[100];
+	int i,j, mode;
+	int entryCount = 0;
+	char file[100];
+
+
+	strcpy(file, tokens[1]);
+	mode= set_FileMode(tokens[2]); //set the mode of the file to be opened
+
+	if(mode== -1)
+	{
+		printf("Error: There was an invalid mode entered.\n");
+		return false;
+	}
+
+	while(i<image->numOfOpenFiles)
+	{
+		if (strcmp(file, image->openFiles[i].path) == 0) //search in open file list
+		{
+			printf( "Error: File is already open\n");  		//checks whether the file is already opened
+			return false;
+		}
+		i++;
+
+	}
+
+	read_Entries_from_Dir(image, entries,image->currCluster, &entryCount);
+	int index = -1;
+
+	while(i < entryCount)
+	{
+		char fileName[11+1];
+		Hex2ASCII(entries[i].dirName, 11, fileName);
+
+		j = 0;
+		while(j < strlen(fileName))
+		{
+			if(fileName[j] == ' ')
+				fileName[j] = '\0';
+				j++;
+		}
+
+		if (entries[i].attributes[0] == 0x20 && strcmp(file,fileName) == 0)
+		{
+			index = i;
+			break;
+		}
+		i++;
+	}
+
+	if (index == -1)
+	{
+		printf("Error: Filename %s was not found.\n", file);
+		return false;
+	}
+
+	unsigned char clusterNum[46];
+
+	while(i<26)   //size of fstClusLO specification pdf
+	{
+		clusterNum[i] = entries[index].fstClusLO[i];
+		i++;
+	}
+
+	while(i<20) //size of fstClusHI specification pdf
+	{
+		clusterNum[i+26] = entries[index].fstClusHI[i];
+		i++;
+	}
+
+	int NumOfCluster = Hex2Decimal(clusterNum, 26+20);  //size of fstClusLO and fstClusHI from spec file
+
+	strcpy(image->openFiles[image->numOfOpenFiles].path, file);  //add the file information to the openfiles structure
+
+	image->openFiles[image->numOfOpenFiles].firstCluster = NumOfCluster;
+	image->openFiles[image->numOfOpenFiles].mode = mode;
+	image->numOfOpenFiles++;
+
+	printf("File %s is now opened.\n", file);
+	return true;
 }

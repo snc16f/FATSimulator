@@ -154,6 +154,16 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 	else if(strcmp(tokens[0], "open") == 0)
 	{
 		printf("You want to run the 'open' command with %d arguments\n", numOfToks-1);
+		if(numOfToks ==3)
+		{
+			open_file(image, tokens);
+		}
+		else
+		{
+			printf("Error: Too few or too many arguments.\n");  //checks if there was a filename provided
+
+		}
+
 	}
 	else if(strcmp(tokens[0], "close") == 0)
 	{

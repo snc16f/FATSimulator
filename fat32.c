@@ -262,7 +262,10 @@ DirectoryEntry create_DIRENTRY(const char * Filename, unsigned char attr, unsign
    dirEntry.ntres[0] = 0x00;              // Set DIR_NTRes, reserved.
 
    unsigned char bytes[4];
-   ConverToUnsignedChar(availablecluster, bytes);
+   bytes[0] = availablecluster & 0xFF;
+   bytes[1] = (availablecluster >> 8) & 0xFF;
+   bytes[2] = (availablecluster >> 16) & 0xFF;
+   bytes[3] = (availablecluster >> 24) & 0xFF;
 
    dirEntry.fstClusLO[0] = bytes[0];      //Set DIR_FstClusLO nad DIR_FstClusHI after converting bytes to unsigned chars
    dirEntry.fstClusLO[1] = bytes[1];

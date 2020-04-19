@@ -36,6 +36,12 @@ typedef struct {
 
 } BootSector;
 
+typedef struct {   //structure that represents the open file path
+	char path[150];
+	int firstCluster;
+	int mode;
+} OpenFile;
+
 typedef struct{
 	int numOfOpenFiles;
 	BootSector boot;
@@ -45,6 +51,8 @@ typedef struct{
 	char currDir[100][100];
 	int currDepth;
 	char * buffer;
+	OpenFile openFiles[150];    //stores structure OpenFile in a list
+
 } TheImage;
 
 typedef struct{
@@ -72,8 +80,8 @@ void seperateBySpace(char * line, int * numOfToks, char newLines[100][100]);
 int Hex2Decimal(const unsigned char * buffer, int bufferSize);
 void Hex2ASCII(const unsigned char * buffer, int bufferSize, char * str);
 int power(int base, int raise);
-int compareDirs(const void * p1, const void * p2);
-void ConverToUnsignedChar(int availablecluster, unsigned char bytes[]);
+int compare2Directories(const void * a, const void * b);
+int set_FileMode(char * permission);
 
 
 
@@ -112,9 +120,4 @@ void show_ls(const TheImage * image, char tokens[100][100]);
 void do_cd(TheImage * image, char tokens[100][100]);
 void creat_command(TheImage * image,char tokens[100][100]);
 void make_Dir(TheImage * image,char tokens[100][100]);
-
-
-
-
-
-#endif
+bool open_file( TheImage * image, char tokens[100][100]);
