@@ -121,3 +121,5 @@ void do_cd(TheImage * image, char tokens[100][100]);
 void creat_command(TheImage * image,char tokens[100][100]);
 void make_Dir(TheImage * image,char tokens[100][100]);
 bool open_file( TheImage * image, char tokens[100][100]);
+
+#endif

@@ -95,6 +95,13 @@ void show_size(const TheImage * image, char tokens[100][100])
    {
       char tmp_filename[12];
       Hex2ASCII(dirEntries[i].dirName, 11, tmp_filename);
+		int j;
+		j = 0;
+		while(j < strlen(tmp_filename)){
+			if(tmp_filename[j] == ' ')
+				tmp_filename[j] = '\0';
+				j++;
+		}
       if(strcmp(tokens[1],tmp_filename) == 0 && dirEntries[i].attributes[0] == 0x20)
       {
          index = i;
@@ -111,7 +118,7 @@ void show_size(const TheImage * image, char tokens[100][100])
 
    int sizeOfFile;
    sizeOfFile = Hex2Decimal(dirEntries[index].size, 4);
-   printf("The size of '%s' is - %d\n", tokens[1], sizeOfFile);
+   printf("The size of '%s' is: %d\n", tokens[1], sizeOfFile);
 
    entryCount = 0;
 }
