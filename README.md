@@ -23,6 +23,7 @@ Samantha Chaves-
   1. Implemented the INFO command
   2. Implemented LS command with no parameters
   3. Implemented CREAT command
+  4. Implemented OPEN command
 
 Tyler Gurley-
   1. Implemented the EXIT, SIZE commands
