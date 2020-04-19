@@ -31,6 +31,7 @@ Tyler Gurley-
 Justin Richman-
   1. Implemented LS to take commands
   2. Implemented CD command
+  3. Implemented MKDIR command
 
 
 Bugs:

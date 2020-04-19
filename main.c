@@ -55,7 +55,6 @@ void prompt(TheImage * image)	// - Prints the prompt for user input
 	int i = 0;
 	for(i=0; i < image->currDepth; i++)
 	{
-		printf("currD: %d  currdir: %s\n",image->currDepth,image->currDir[i]);
 		strcat(prompt, "/");
 		strcat(prompt, image->currDir[i]);
 	}
@@ -139,6 +138,14 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 	else if(strcmp(tokens[0], "mkdir") == 0)
 	{
 		printf("You want to run the 'mkdir' command with %d arguments\n", numOfToks-1);
+		if(numOfToks == 2)
+		{
+			make_Dir(image, tokens);
+		}
+		else
+		{
+			printf("Error: Too many arugments or missing directory name\n");
+		}
 	}
 	else if(strcmp(tokens[0], "mv") == 0)
 	{

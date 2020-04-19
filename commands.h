@@ -110,7 +110,8 @@ void get_info(const TheImage * image);
 void show_size(const TheImage * image, char tokens[100][100]);
 void show_ls(const TheImage * image, char tokens[100][100]);
 void do_cd(TheImage * image, char tokens[100][100]);
-bool creat_command(TheImage * image,char tokens[100][100]);
+void creat_command(TheImage * image,char tokens[100][100]);
+void make_Dir(TheImage * image,char tokens[100][100]);
 
 
 

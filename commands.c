@@ -249,13 +249,14 @@ if(search == 1){
 	}}
 }
 
-bool creat_command(TheImage * image,char tokens[100][100]) {
+void creat_command(TheImage * image,char tokens[100][100]) {
 
 	int clusters[100];
 	DirectoryEntry entries[100];
 	int FileCreated=0;
 	int entryCount = 0;
 	int i, j;
+	bool error = 0;
 
 	read_Entries_from_Dir(image, entries, image->currCluster, &entryCount);
 
@@ -275,13 +276,14 @@ bool creat_command(TheImage * image,char tokens[100][100]) {
 		if (strcmp(tokens[1],fileName)==0) //check if the fileNAme is already listed as a directory
 		{
 			printf("Error: File %s already exists.\n",fileName);
-			return false;
+			error = 1;
 		}
 		i++;
 	}
 	entryCount = 0; // reset this
 
 	//allocate the first cluster of the file
+	if(error == 0){
 	int availableclus = get_AvailableCluster(image);
 
 	//update the FAT entry to 0xFFFFFFFF
@@ -307,6 +309,68 @@ bool creat_command(TheImage * image,char tokens[100][100]) {
 		i++;
 	}
 	printf("File %s was successfully created.\n", tokens[1]);
+	}
 
-	return 1;
+}
+
+void make_Dir(TheImage * image,char tokens[100][100]){
+
+	DirectoryEntry dirEntries[150];
+	int num_directories = 0;
+	int i, j;
+	int clus[100];
+	bool error = 0;
+
+	//check if dir exists or illegal
+	read_Entries_from_Dir(image, dirEntries, image->currCluster, &num_directories);
+	for (i = 0; i < num_directories; i++) {
+		char dirName[12];
+		Hex2ASCII(dirEntries[i].dirName, 11, dirName);
+		j = 0;
+		while(j < strlen(dirName))
+		{
+			if(dirName[j] == ' ')
+				dirName[j] = '\0';
+				j++;
+		}
+		if (strcmp(tokens[1],dirName) == 0 || strcmp(tokens[1],".") == 0 || strcmp(tokens[1],"..") == 0) {
+			printf("The directory %s already exists", tokens[1]);
+			error = 1;
+		}
+	}
+	num_directories = 0;
+
+	if(error == 0){
+	//allocate the first cluster of the dir
+	int availableclus = get_AvailableCluster(image);
+
+	//update the FAT entry to 0xFFFFFFFF
+	unsigned char emptyCluster[] = {0xFF,0xFF,0xFF,0xFF};
+	Update_FATEntry(image, availableclus, emptyCluster);
+
+	char * newfileName = tokens[1];
+
+	// Create a DIRENTRY using the newfile name passed in as an argument
+	//set DIR_Attr to ATTR_ARCHIVE
+	DirectoryEntry newDir = create_DIRENTRY(newfileName, 0x10, availableclus);
+	find_Clusters_Associated(image, image->currCluster, clus);
+
+
+	i = 0;
+	while (clus[i] != -1) {
+	if (add_DIRENTRY(image,newDir,clus[i])) {
+		break;
+	}
+	i++;
+	}
+
+	DirectoryEntry curDir = create_DIRENTRY(".", 0x10, availableclus);
+	add_DIRENTRY(image,curDir,availableclus);
+
+	DirectoryEntry parDir = create_DIRENTRY("..", 0x10, image->currCluster);
+	add_DIRENTRY(image,parDir,availableclus);
+
+	printf("Directory %s was created\n", tokens[1]);
+}
+
 }
