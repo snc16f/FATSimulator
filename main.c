@@ -168,6 +168,14 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 	else if(strcmp(tokens[0], "close") == 0)
 	{
 		printf("You want to run the 'close' command with %d arguments\n", numOfToks-1);
+		if(numOfToks == 2)
+		{
+			close_file(image, tokens);
+		}
+		else
+		{
+			printf("Improper command entry. Usage: close [FILENAME]\n");
+		}
 	}
 	else if(strcmp(tokens[0], "read") == 0)
 	{

@@ -471,3 +471,38 @@ bool open_file( TheImage * image, char tokens[100][100])
 	printf("File %s is now opened.\n", file);
 	return true;
 }
+
+void close_file(TheImage * image, char tokens[100][100])
+{
+	int index = -1;
+	int i;
+	i = 0;
+	while(i < image->numOfOpenFiles)
+	{
+		if(strcmp(tokens[1], image->openFiles[i].path) == 0)
+		{
+			index = i;
+			break; // found our index, now leave while loop
+		}
+		i++;
+	}
+
+	// if the file we want is not open we still have index -1
+	if(index == -1)
+	{
+		printf("The file (%s) is not open right now.\n", tokens[1]);
+		return;
+	}
+
+	i = index;
+	while(i < image->numOfOpenFiles-1) // remove old file by just shifting everything down and overwriting the old one
+	{
+		strcpy(image->openFiles[i].path, image->openFiles[i+1].path);
+		image->openFiles[i].firstCluster = image->openFiles[i+1].firstCluster;
+		image->openFiles[i].mode = image->openFiles[i+1].mode;
+		i++;
+	}
+	image->numOfOpenFiles = image->numOfOpenFiles - 1; //decrement our open file count
+
+	printf("File (%s) successfully close.\n", tokens[1]);
+}
