@@ -52,11 +52,12 @@ void prompt(TheImage * image)	// - Prints the prompt for user input
 {
 	char prompt[100];
 	prompt[0] = '\0';
+	strcat(prompt,"/");
 	int i = 0;
 	for(i=0; i < image->currDepth; i++)
 	{
-		strcat(prompt, "/");
 		strcat(prompt, image->currDir[i]);
+		strcat(prompt, "/");
 	}
 	printf("%s>", prompt);
 }
@@ -89,7 +90,7 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 		}
 		else
 		{
-			printf("Invalid command entry. Too many/little arguments provided.\nUsage: size [FILENAME]\n");
+			printf("Error: Invalid command entry. Too many/little arguments provided.\nUsage: size [FILENAME]\n");
 		}
 	}
 	else if(strcmp(tokens[0], "ls") == 0)
@@ -119,7 +120,7 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 			//do nothing
 		}
 		else{
-			printf("Invalid command entry. Too many/little arguments provided.\nUsage: cd [DIRECTORY]\n");
+			printf("Error: Invalid command entry. Too many/little arguments provided.\nUsage: cd [DIRECTORY]\n");
 		}
 	}
 	else if(strcmp(tokens[0], "creat") == 0)
@@ -131,7 +132,7 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 		}
 		else
 		{
-			printf("Error: No filename provided.\n");  //checks if there was a filename provided
+			printf("Error: No filename provided.\nUsage: creat [FILENAME]\n");  //checks if there was a filename provided
 
 		}
 	}
@@ -144,7 +145,7 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 		}
 		else
 		{
-			printf("Error: Too many arugments or missing directory name\n");
+			printf("Error: Too many arugments or missing directory name\nUsage: mkdir [DIRNAME]\n");
 		}
 	}
 	else if(strcmp(tokens[0], "mv") == 0)
@@ -160,7 +161,7 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 		}
 		else
 		{
-			printf("Error: Too few or too many arguments.\n");  //checks if there was a filename provided
+			printf("Error: Too few or too many arguments.\nUsage: open [FILENAME] [MODE]\n");  //checks if there was a filename provided
 
 		}
 
@@ -174,12 +175,20 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 		}
 		else
 		{
-			printf("Improper command entry. Usage: close [FILENAME]\n");
+			printf("Error: Improper command entry.\nUsage: close [FILENAME]\n");
 		}
 	}
 	else if(strcmp(tokens[0], "read") == 0)
 	{
 		printf("You want to run the 'read' command with %d arguments\n", numOfToks-1);
+		if(numOfToks == 4)
+		{
+			read_file(image,tokens);
+		}
+		else
+		{
+			printf("Error: Improper command entry.\nUsage: read [FILENAME] [OFFSET] [SIZE]\n");
+		}
 	}
 	else if(strcmp(tokens[0], "write") == 0)
 	{

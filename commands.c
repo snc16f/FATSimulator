@@ -15,6 +15,9 @@ void seperateBySpace(char * line, int * numOfToks, char newLines[100][100]) // s
 		*numOfToks = *numOfToks + 1;
 	}
 }
+
+//=====================================================================================
+
 int Hex2Decimal(const unsigned char * buffer, int bufferSize) {  //Little Endian: Convert from Hex to Decimal Value
 
 	int i, decimal = 0;
@@ -27,6 +30,8 @@ int Hex2Decimal(const unsigned char * buffer, int bufferSize) {  //Little Endian
 
 	return decimal;
 }
+
+//=====================================================================================
 
 void Hex2ASCII(const unsigned char * buffer, int bufferSize, char * str)
 {
@@ -43,12 +48,19 @@ void Hex2ASCII(const unsigned char * buffer, int bufferSize, char * str)
    str[bufferSize] = '\0'; // must null terminate
 }
 
+//=====================================================================================
+
+//=====================================================================================
+
 int power(int base, int raise) {
 	if (raise == 0)
 		return 1;
 	else
 		return (base * power(base, raise-1));
 }
+
+//=====================================================================================
+
 int compare2Directories(const void * a, const void * b)
 {
 	DirectoryEntry * d1 = (DirectoryEntry *) a;
@@ -56,6 +68,9 @@ int compare2Directories(const void * a, const void * b)
 
 	return strcmp( d1 -> dirName, d2 -> dirName );
 }
+
+//=====================================================================================
+
 int set_FileMode(char * permission)
 {
 	if(strcmp(permission, "r") == 0)
@@ -82,6 +97,8 @@ void get_info(const TheImage * image)
 	printf("FATSz32: %d\n", Hex2Decimal(image->boot.FATSz32, FAT32Size));
 	printf("RootClus: %d\n", Hex2Decimal(image->boot.RootClus, RootSize));
 }
+
+//=====================================================================================
 
 void show_size(const TheImage * image, char tokens[100][100])
 {
@@ -122,6 +139,8 @@ void show_size(const TheImage * image, char tokens[100][100])
 
    entryCount = 0;
 }
+
+//=====================================================================================
 
 // print the name field for the directories within the contents of DIRNAME including the “.” and “..”
 // directories. For simplicity, you may print each of the directory entries on separate lines
@@ -200,6 +219,8 @@ if(search == 0){
 }
 }
 
+//=====================================================================================
+
 void do_cd(TheImage * image, char tokens[100][100]){
 
 	DirectoryEntry dirEntries[150];
@@ -262,6 +283,8 @@ if(search == 1){
 		}
 	}}
 }
+
+//=====================================================================================
 
 void creat_command(TheImage * image,char tokens[100][100]) {
 
@@ -327,6 +350,10 @@ void creat_command(TheImage * image,char tokens[100][100]) {
 
 }
 
+//=====================================================================================
+
+//=====================================================================================
+
 void make_Dir(TheImage * image,char tokens[100][100]){
 
 	DirectoryEntry dirEntries[150];
@@ -388,6 +415,9 @@ void make_Dir(TheImage * image,char tokens[100][100]){
 }
 
 }
+
+//=====================================================================================
+
 bool open_file( TheImage * image, char tokens[100][100])
 {
 	DirectoryEntry entries[100];
@@ -472,6 +502,8 @@ bool open_file( TheImage * image, char tokens[100][100])
 	return true;
 }
 
+//=====================================================================================
+
 void close_file(TheImage * image, char tokens[100][100])
 {
 	int index = -1;
@@ -505,4 +537,134 @@ void close_file(TheImage * image, char tokens[100][100])
 	image->numOfOpenFiles = image->numOfOpenFiles - 1; //decrement our open file count
 
 	printf("File (%s) successfully close.\n", tokens[1]);
+}
+
+//=====================================================================================
+
+void read_file(TheImage * image, char tokens[100][100])
+{
+	DirectoryEntry entries[100];
+	int offset = atoi(tokens[2]);
+	int size = atoi(tokens[3]);
+
+	if(image->numOfOpenFiles == 0)
+	{
+		printf("Error: File %s is not open right now. Please open it and try again\n", tokens[1]);
+		return;
+	}
+	int i = 0;
+	while(i < image->numOfOpenFiles)
+	{
+		if(strcmp(tokens[1], image->openFiles[i].path) == 0 && image->openFiles[i].mode != 1)
+			break;
+		if(i == image->numOfOpenFiles-1)
+		{
+			printf("Error: File %s is not readable\n", tokens[1]);
+			return;
+		}
+		i++;
+	}
+
+	int entryCount = 0;
+	read_Entries_from_Dir(image, entries, image->currCluster, &entryCount);
+	int index = -1;
+	i = 0;
+	while(i < entryCount)
+	{
+		char potential_file[12];
+		Hex2ASCII(entries[i].dirName, 11, potential_file);
+		int j;
+		j = 0;
+		while(j < strlen(potential_file)){
+			if(potential_file[j] == ' ')
+				potential_file[j] = '\0';
+				j++;
+		}
+		if(entries[i].attributes[0] == 0x20 && strcmp(tokens[1], potential_file) == 0)
+		{
+			index = i;
+			break;
+		}
+		i++;
+	}
+	if(index == -1) // didnt find file
+	{
+		printf("Error: File %s does not exist\n", tokens[1]);
+		return;
+	}
+
+	int given_file_size;
+	given_file_size = Hex2Decimal(entries[index].size, 4);
+	if(given_file_size < offset)
+	{
+		printf("Error: Offset given is larger than actual file size\n");
+		return;
+	}
+
+	unsigned char first_Cluster_Number[4];
+	i = 0;
+	while(i < 2)
+	{
+		first_Cluster_Number[i] = entries[index].fstClusLO[i];
+		i++;
+	}
+	i = 0;
+	while(i < 2)
+	{
+		first_Cluster_Number[i+2] = entries[index].fstClusHI[i];
+		i++;
+	}
+	int first_Cluster;
+	first_Cluster = Hex2Decimal(first_Cluster_Number, 4);
+	int clusters[100];
+	find_Clusters_Associated(image, first_Cluster, clusters);
+
+	int bytes_Per_Sec = Hex2Decimal(image->boot.BytsPerSec, BytsSize);
+	unsigned char buffer[size];
+	int buffer_index = 0;
+	int buff_offset = offset;
+	i = 0;
+	while(clusters[i] != -1)
+	{
+		if(buff_offset >= bytes_Per_Sec)
+		{
+			buff_offset = buff_offset - bytes_Per_Sec;
+			continue;
+		}
+
+		int clst_pos;
+		if(buffer_index == 0)
+		{
+			clst_pos = buff_offset;
+		}
+		else
+		{
+			clst_pos = 0;
+		}
+
+		int buffer_clst_pos = DATA_Index(image) + (bytes_Per_Sec * (clusters[i] - 2));
+
+		while( size > buffer_index &&  bytes_Per_Sec > clst_pos && given_file_size > (offset + buffer_index) )
+		{
+			buffer[buffer_index] = image->buffer[buffer_clst_pos + clst_pos];
+			buffer_index = buffer_index + 1;
+			clst_pos = clst_pos + 1;
+		}
+		if(size <= buffer_index)
+		{
+			break; // got all we need now break
+		}
+		i++;
+	}
+
+	char what_was_read[buffer_index+1];
+	Hex2ASCII(buffer, buffer_index, what_was_read);
+	i =0;
+	while(i < buffer_index)
+	{
+		printf("%c", what_was_read[i]);
+		i++;
+	}
+	printf("\n");
+	return;
 }
