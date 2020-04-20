@@ -26,7 +26,7 @@ Samantha Chaves-
   4. Implemented OPEN command
 
 Tyler Gurley-
-  1. Implemented the EXIT, SIZE commands
+  1. Implemented the EXIT, SIZE, CLOSE, RM, READ commands
   2. Recognition of commands through parsing
 
 Justin Richman-

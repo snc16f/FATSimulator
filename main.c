@@ -132,8 +132,7 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 		}
 		else
 		{
-			printf("Error: No filename provided.\nUsage: creat [FILENAME]\n");  //checks if there was a filename provided
-
+			printf("Error: Improper command entry.\nUsage: creat [FILENAME]\n");  //checks if there was a filename provided
 		}
 	}
 	else if(strcmp(tokens[0], "mkdir") == 0)
@@ -197,6 +196,14 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 	else if(strcmp(tokens[0], "rm") == 0)
 	{
 		printf("You want to run the 'rm' command with %d arguments\n", numOfToks-1);
+		if(numOfToks == 2)
+		{
+			rm_file(image, tokens);
+		}
+		else
+		{
+			printf("Error: Improper command entry.\nUsage: rm [FILENAME]\n");
+		}
 	}
 	else if(strcmp(tokens[0], "cp") == 0)
 	{

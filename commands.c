@@ -668,3 +668,148 @@ void read_file(TheImage * image, char tokens[100][100])
 	printf("\n");
 	return;
 }
+
+//=====================================================================================
+
+void rm_file(TheImage * image, char tokens[100][100])
+{
+	//can't remove a file if it is open already
+	int i;
+	i = 0;
+	while(i < image->numOfOpenFiles)
+	{
+		if(strcmp(tokens[1], image->openFiles[i].path) == 0)
+		{
+			printf("File %s is open. Please close it before trying to delete it.\n", tokens[1]);
+			return;
+		}
+		i++;
+	}
+
+	DirectoryEntry entries[100];
+	int entryCount = 0;
+	read_Entries_from_Dir(image, entries, image->currCluster, &entryCount);
+	int directoryIndex = -1;
+	i = 0;
+	while(i < entryCount)
+	{
+		char tmp_name[12];
+		Hex2ASCII(entries[i].dirName, 11, tmp_name);
+		int j;
+		j = 0;
+		while(j < strlen(tmp_name)){
+			if(tmp_name[j] == ' ')
+				tmp_name[j] = '\0';
+				j++;
+		}
+		if(entries[i].attributes[0] == 0x20 && strcmp(tokens[1], tmp_name) == 0)
+		{
+			directoryIndex = i; // found index
+			break;
+		}
+		i++;
+	}
+	if(directoryIndex == -1) // never found index
+	{
+		printf("Error: File %s isn't in the directory or does not exist.\n", tokens[1]);
+		return;
+	}
+
+	unsigned char first_Cluster_Number[4];
+	i = 0;
+	while(i < 2)
+	{
+		first_Cluster_Number[i] = entries[directoryIndex].fstClusLO[i];
+		i++;
+	}
+	i = 0;
+	while(i < 2)
+	{
+		first_Cluster_Number[i+2] = entries[directoryIndex].fstClusHI[i];
+		i++;
+	}
+	int first_Cluster;
+	first_Cluster = Hex2Decimal(first_Cluster_Number, 4);
+	int clusters[100];
+	find_Clusters_Associated(image, first_Cluster, clusters);
+	int bytes_Per_Sec = Hex2Decimal(image->boot.BytsPerSec, BytsSize);
+	int index = 0;
+	while(clusters[index] != -1)
+	{
+		int curr_cluster_pos = DATA_Index(image) + (bytes_Per_Sec * (clusters[index] - 2));
+		int curr_fat_pos = FAT_Index(image) + (4 * clusters[index]);
+		i = 0;
+		while(i < 512)
+		{
+			image->buffer[curr_cluster_pos + i] = 0x00; // removing entry from data region
+			i++;
+		}
+		i = 0;
+		while(i < 4)
+		{
+			image->buffer[curr_fat_pos + i] = 0x00; // remove from fat region too
+			i++;
+		}
+
+		index++;
+	}
+
+	find_Clusters_Associated(image, image->currCluster, clusters);
+
+	int did_find = 0; // if found will be switched to 1
+	index = 0; // reset index var
+	while(clusters[index] != 1)
+	{
+		unsigned char tmp_cluster[Cluster_Size(image)];
+		find_Cluster(image, clusters[index], tmp_cluster);
+		i = 1;
+		while(i <= 8)
+		{
+			DirectoryEntry tmp_entry = read_Entry(tmp_cluster, i);
+			char tmp_name[12];
+			Hex2ASCII(tmp_entry.dirName, 11, tmp_name);
+			int j;
+			j = 0;
+			while(j < strlen(tmp_name)){
+				if(tmp_name[j] == ' ')
+					tmp_name[j] = '\0';
+					j++;
+			}
+			if(strcmp(tokens[1], tmp_name) == 0) // found it, so change our did_find, set directoryIndex, and leave while
+			{
+				did_find = 1;
+				directoryIndex = i;
+				break;
+			}
+			i++;
+		}
+		if(did_find == 1)
+		{
+			break;
+		}
+		index++;
+	}
+
+	if(did_find == 1)
+	{
+		int our_clst_pos = DATA_Index(image) + (clusters[index]-2) * bytes_Per_Sec + (directoryIndex-1) *64;
+		i = 0;
+		while(i < 64)
+		{
+			image->buffer[our_clst_pos+i] = 0x00;
+			i++;
+		}
+	}
+
+	FILE * imageFile;
+	imageFile = fopen(image->filename, "wb");
+	int written_bytes = fwrite(image->buffer, sizeof(unsigned char), image->size, imageFile);
+	if(written_bytes != image->size) // fatal problem so exit program
+	{
+		printf("Error: Image file could be corrupted.\n");
+		exit(5); // 5 to indicate loaction of exit
+	}
+
+	printf("File %s had been removed.\n", tokens[1]);
+	return;
+}
