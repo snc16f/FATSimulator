@@ -17,22 +17,7 @@ File Listing:
 4) main.c - This file is responsible for carrying out the main shell-like utility. It reads the input from the command like and also reads in the fat32.img file that we are to interpret.
 
 Division of Labor:
-The members of this project are Samantha Chaves, Tyler Gurley, and Justin Richman. Below is the division of each members contribution to the project.
-
-Samantha Chaves-
-  1. Implemented the INFO command
-  2. Implemented LS command with no parameters
-  3. Implemented CREAT command
-  4. Implemented OPEN command
-
-Tyler Gurley-
-  1. Implemented the EXIT, SIZE, CLOSE, RM, READ commands
-  2. Recognition of commands through parsing
-
-Justin Richman-
-  1. Implemented LS to take commands
-  2. Implemented CD command
-  3. Implemented MKDIR command
+The members of this project are Samantha Chaves, Tyler Gurley, and Justin Richman. We made an effort to meet as a group and work on the project together. Each group member put in an equal amount of work.
 
 
 Bugs:
