@@ -72,18 +72,15 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 	// Check what our command is and run
 	if(strcmp(tokens[0], "exit") == 0)
 	{
-		printf("You want to run the 'exit' command with %d arguments\n", numOfToks-1);
    		free(image);	//free image file
    		exit(0);
 	}
 	else if(strcmp(tokens[0], "info") == 0)  //get BPB information from image file and prints it in decimal value
 	{
-		printf("You want to run the 'info' command with %d arguments\n", numOfToks-1);
 		get_info(image);
 	}
 	else if(strcmp(tokens[0], "size") == 0)
 	{
-		printf("You want to run the 'size' command with %d arguments\n", numOfToks-1);
 		if(numOfToks == 2)
 		{
 			show_size(image, tokens);
@@ -95,7 +92,6 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 	}
 	else if(strcmp(tokens[0], "ls") == 0)
 	{
-		printf("You want to run the 'ls' command with %d arguments\n", numOfToks-1);
 		if(numOfToks==2)
 		{
 		    show_ls(image, tokens);
@@ -106,7 +102,6 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 	}
 	else if(strcmp(tokens[0], "cd") == 0)
 	{
-		printf("You want to run the 'cd' command with %d arguments\n", numOfToks-1);
 		if(strcmp(tokens[1],".") == 0)
 		{
 			//do nothing
@@ -125,7 +120,6 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 	}
 	else if(strcmp(tokens[0], "creat") == 0)
 	{
-		printf("You want to run the 'creat' command with %d arguments\n", numOfToks-1);
 		if(numOfToks ==2)
 		{
 			creat_command(image, tokens);
@@ -137,7 +131,6 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 	}
 	else if(strcmp(tokens[0], "mkdir") == 0)
 	{
-		printf("You want to run the 'mkdir' command with %d arguments\n", numOfToks-1);
 		if(numOfToks == 2)
 		{
 			make_Dir(image, tokens);
@@ -149,11 +142,10 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 	}
 	else if(strcmp(tokens[0], "mv") == 0)
 	{
-		printf("You want to run the 'mv' command with %d arguments\n", numOfToks-1);
+		printf("The 'mv' command was not implemented.\n");
 	}
 	else if(strcmp(tokens[0], "open") == 0)
 	{
-		printf("You want to run the 'open' command with %d arguments\n", numOfToks-1);
 		if(numOfToks ==3)
 		{
 			open_file(image, tokens);
@@ -167,7 +159,6 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 	}
 	else if(strcmp(tokens[0], "close") == 0)
 	{
-		printf("You want to run the 'close' command with %d arguments\n", numOfToks-1);
 		if(numOfToks == 2)
 		{
 			close_file(image, tokens);
@@ -179,7 +170,6 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 	}
 	else if(strcmp(tokens[0], "read") == 0)
 	{
-		printf("You want to run the 'read' command with %d arguments\n", numOfToks-1);
 		if(numOfToks == 4)
 		{
 			read_file(image,tokens);
@@ -191,11 +181,10 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 	}
 	else if(strcmp(tokens[0], "write") == 0)
 	{
-		printf("You want to run the 'write' command with %d arguments\n", numOfToks-1);
+		printf("The 'write' command was not implemented.\n");
 	}
 	else if(strcmp(tokens[0], "rm") == 0)
 	{
-		printf("You want to run the 'rm' command with %d arguments\n", numOfToks-1);
 		if(numOfToks == 2)
 		{
 			rm_file(image, tokens);
@@ -207,11 +196,7 @@ void readAndDetermine(char * usrInput, TheImage * image) // - reads user input a
 	}
 	else if(strcmp(tokens[0], "cp") == 0)
 	{
-		printf("You want to run the 'cp' command with %d arguments\n", numOfToks-1);
-	}
-	else if(strcmp(tokens[0], "rmdir") == 0)
-	{
-		printf("You want to run the 'rmdir' command with %d arguments\n", numOfToks-1);
+		printf("The 'cp' command was not implemented\n");
 	}
 	else
 	{

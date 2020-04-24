@@ -21,6 +21,12 @@ The members of this project are Samantha Chaves, Tyler Gurley, and Justin Richma
 
 
 Bugs:
+No known bugs.
+
+Non-implemented commands due to some time constraints and COVID-19:
+   - mv
+   - cp
+   - write
 
 
 GitHub Public Repository:
